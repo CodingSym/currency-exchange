@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  currencyexchange.webapi:
+    image: currencyexchangewebapi
+    build:
+      context: .
+      dockerfile: src/CurrencyExchange.WebApi/Dockerfile
