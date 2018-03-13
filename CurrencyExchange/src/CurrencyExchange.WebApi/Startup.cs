@@ -24,7 +24,8 @@ namespace CurrencyExchange
                 {
                     options.SerializerSettings.Formatting = Formatting.Indented;
                 });
-            services.AddServices();
+
+            services.RegisterModuleComponents();
 
             services.AddSwaggerGen(c =>
             {
@@ -37,10 +38,6 @@ namespace CurrencyExchange
             app.UseDeveloperExceptionPage();
 
             app.UseSwagger();
-            //app.UseSwaggerUI(c =>
-            //{
-            //    c.SwaggerEndpoint("/api-docs/v1/swagger.json", "My API V1");
-            //})
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Currency Exchange API");
