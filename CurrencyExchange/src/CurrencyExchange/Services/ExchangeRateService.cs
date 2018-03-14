@@ -37,7 +37,6 @@ namespace CurrencyExchange.Services
         
         public async Task<string> AverageExchangeRateFor7Days(string baseSymbol, string targetSymbol)
         {
-            // Validate through IConfigurationService
             var totalRates = await GetCurrencyRatesFor7Days(baseSymbol, targetSymbol);
 
             return MathService.GetAverateRate(totalRates).ToString();
@@ -45,8 +44,6 @@ namespace CurrencyExchange.Services
 
         public async Task<string> CurrentExchangeRate(string baseSymbol, string targetSymbol)
         {
-            // Validate through IConfigurationService
-
             var response = await FixerClient.GetCurrentRatesForPair(baseSymbol, targetSymbol);
             var parsedResponse = ResponseParser.ParseExchangeRateResponse(response);
 
@@ -56,8 +53,6 @@ namespace CurrencyExchange.Services
 
         public async Task<string> MaximumExchangeRateDuring7Days(string baseSymbol, string targetSymbol)
         {
-            // Validate through IConfigurationService
-
             var totalRates = await GetCurrencyRatesFor7Days(baseSymbol, targetSymbol);
 
             return MathService.GetMaximumRate(totalRates).ToString();
@@ -65,16 +60,12 @@ namespace CurrencyExchange.Services
 
         public async Task<string> MinimumExchangeRateDuring7Days(string baseSymbol, string targetSymbol)
         {
-            // Validate through IConfigurationService
-
             var totalRates = await GetCurrencyRatesFor7Days(baseSymbol, targetSymbol);
 
             return MathService.GetMinimumRate(totalRates).ToString();
         }
         public async Task<Dictionary<string, string>> GetAllRates(string baseSymbol)
         {
-            // Validate through IConfigurationService
-
             var response = await FixerClient.GetAllRates(baseSymbol);
             var parsedResponse = ResponseParser.ParseAllRatesResponse(response);
 
