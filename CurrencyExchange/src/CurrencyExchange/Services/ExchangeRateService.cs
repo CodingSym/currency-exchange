@@ -1,4 +1,5 @@
 ﻿using CurrencyExchange.Contracts;
+using CurrencyExchange.Exceptions;
 using CurrencyExchange.Fixer;
 using CurrencyExchange.Helpers;
 using CurrencyExchange.Settings;
@@ -17,6 +18,7 @@ namespace CurrencyExchange.Services
         readonly IMathService MathService;
         readonly IResponseParser ResponseParser;
         readonly DateTime utcNow = DateTime.UtcNow;
+        const int DaysCount7 = 7;
 
         public ExchangeRateService(
             IConfiguration configurationRoot, 
@@ -31,15 +33,13 @@ namespace CurrencyExchange.Services
 
             FixerClient.AssignApiKey(GetAccessKey());
         }
-
+        
         public async Task<string> AverageExchangeRateFor7Days(string baseSymbol, string targetSymbol)
         {
             // Validate through IConfigurationService
+            var totalRates = await GetCurrencyRatesFor7Days(baseSymbol, targetSymbol);
 
-            var response = await FixerClient.GetExchangeRatesFromLast7Days(baseSymbol, targetSymbol, utcNow.AddDays(-7), utcNow);
-            var parsedResponse = ResponseParser.ParseHistoricalRatesResponse(response);
-
-            return MathService.GetAverateRate(parsedResponse.rates).ToString();
+            return MathService.GetAverateRate(totalRates).ToString();
         }
 
         public async Task<string> CurrentExchangeRate(string baseSymbol, string targetSymbol)
@@ -57,20 +57,18 @@ namespace CurrencyExchange.Services
         {
             // Validate through IConfigurationService
 
-            var response = await FixerClient.GetExchangeRatesFromLast7Days(baseSymbol, targetSymbol, utcNow.AddDays(-7), utcNow);
-            var parsedResponse = ResponseParser.ParseHistoricalRatesResponse(response);
+            var totalRates = await GetCurrencyRatesFor7Days(baseSymbol, targetSymbol);
 
-            return MathService.GetMaximumRate(parsedResponse.rates).ToString();
+            return MathService.GetMaximumRate(totalRates).ToString();
         }
 
         public async Task<string> MinimumExchangeRateDuring7Days(string baseSymbol, string targetSymbol)
         {
             // Validate through IConfigurationService
 
-            var response = await FixerClient.GetExchangeRatesFromLast7Days(baseSymbol, targetSymbol, utcNow.AddDays(-7), utcNow);
-            var parsedResponse = ResponseParser.ParseHistoricalRatesResponse(response);
+            var totalRates = await GetCurrencyRatesFor7Days(baseSymbol, targetSymbol);
 
-            return MathService.GetMinimumRate(parsedResponse.rates).ToString();
+            return MathService.GetMinimumRate(totalRates).ToString();
         }
         public async Task<Dictionary<string, string>> GetAllRates(string baseSymbol)
         {
@@ -80,6 +78,25 @@ namespace CurrencyExchange.Services
             var parsedResponse = ResponseParser.ParseAllRatesResponse(response);
 
             return parsedResponse.rates;
+        }
+
+        async Task<List<CurrencyRate>> GetCurrencyRatesFor7Days(string baseSymbol, string targetSymbol)
+        {
+            var totalRates = new List<CurrencyRate>();
+
+            for (int i = 0; i < DaysCount7; i++)
+            {
+                var response = await FixerClient.GetExchangeRatesForSpecifiedDate(baseSymbol, targetSymbol, utcNow.AddDays(-i));
+                var parsedResponse = ResponseParser.ParseHistoricalRatesResponse(response);
+
+                if (!parsedResponse.rates.Any()) throw new FixerException("Fixer API shows null rates");
+
+                var rates = parsedResponse.rates.First();
+
+                totalRates.Add(new CurrencyRate(rates.Key, decimal.Parse(rates.Value)));
+            }
+
+            return totalRates;
         }
 
         string GetAccessKey()

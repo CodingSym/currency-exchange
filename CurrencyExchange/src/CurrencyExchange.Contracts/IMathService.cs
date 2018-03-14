@@ -4,8 +4,8 @@ namespace CurrencyExchange.Contracts
 {
     public interface IMathService
     {
-        double GetAverateRate(Dictionary<string, string> rates);
-        double GetMinimumRate(Dictionary<string, string> rates);
-        double GetMaximumRate(Dictionary<string, string> rates);
+        decimal GetAverateRate(List<CurrencyRate> rates);
+        decimal GetMinimumRate(List<CurrencyRate> rates);
+        decimal GetMaximumRate(List<CurrencyRate> rates);
     }
 }

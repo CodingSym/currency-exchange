@@ -7,7 +7,7 @@ namespace CurrencyExchange.Fixer
 {
     public class FixerClient : IFixerClient
     {
-        const string URL_PLACEHOLDER_TIMESERIES = "http://data.fixer.io/api/timeseries?access_key={0}&base={1}&symbols={2}&start_date={3}&end_date={4}";
+        const string URL_PLACEHOLDER_DATE = "http://data.fixer.io/api/{3}?access_key={0}&base={1}&symbols={2}";
         const string URL_PLACEHOLDER = "http://data.fixer.io/api/latest?access_key={0}&base={1}";
         const string URL_PLACEHOLDER_SYMBOLS = "http://data.fixer.io/api/latest?access_key={0}&base={1}&symbols={2}";
         readonly HttpClient Client;
@@ -38,9 +38,10 @@ namespace CurrencyExchange.Fixer
         /// <param name="baseSymbol">base currency symbol</param>
         /// <param name="targetSymbol">target currency symbol</param>
         /// <returns></returns>
-        public async Task<string> GetExchangeRatesFromLast7Days(string baseSymbol, string targetSymbol, DateTime startDate, DateTime endDate)
+        public async Task<string> GetExchangeRatesForSpecifiedDate(string baseSymbol, string targetSymbol, DateTime date)
         {
-            var uri = string.Format(URL_PLACEHOLDER_TIMESERIES, AccessKey, baseSymbol, targetSymbol, startDate, endDate);
+            var dateString = date.ToString("yyyy-MM-dd");
+            var uri = string.Format(URL_PLACEHOLDER_DATE, AccessKey, baseSymbol, targetSymbol, dateString);
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
             requestMessage.Content = new StringContent("", Encoding.UTF8, "application/json");
             return await SendAsync(requestMessage);

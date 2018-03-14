@@ -117,6 +117,10 @@ namespace CurrencyExchange.Controllers
             {
                 return BadRequest(new ExchangeRatesErrorModel(configurationSetupException.Message));
             }
+            catch (FixerException fixerException)
+            {
+                return BadRequest(new ExchangeRatesErrorModel(fixerException.Message));
+            }
             catch (Exception)
             {
                 // Some logging

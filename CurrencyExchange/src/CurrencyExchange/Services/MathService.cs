@@ -1,23 +1,15 @@
 ﻿using CurrencyExchange.Contracts;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CurrencyExchange.Services
 {
     public class MathService : IMathService
     {
-        public double GetAverateRate(Dictionary<string, string> rates)
-        {
-            throw new System.NotImplementedException();
-        }
+        public decimal GetAverateRate(List<CurrencyRate> rates) => rates.Average(rate => rate.Rate);
 
-        public double GetMaximumRate(Dictionary<string, string> rates)
-        {
-            throw new System.NotImplementedException();
-        }
+        public decimal GetMaximumRate(List<CurrencyRate> rates) => rates.Max(rate => rate.Rate);
 
-        public double GetMinimumRate(Dictionary<string, string> rates)
-        {
-            throw new System.NotImplementedException();
-        }
+        public decimal GetMinimumRate(List<CurrencyRate> rates) => rates.Min(rate => rate.Rate);
     }
 }
