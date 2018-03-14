@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CurrencyExchange.Controllers
 {
-    [Route("api/exchange-rate")]
+    [Route("api/exchange-rates")]
     public class ExchangeRatesController : Controller
     {
         /// <summary>
@@ -18,12 +18,16 @@ namespace CurrencyExchange.Controllers
         /// <response code="400">Error model</response> 
         [HttpGet("{baseSymbol}/{targetSymbol}")]
         [ProducesResponseType(typeof(string), 200)]
-        [ProducesResponseType(typeof(ExchangeRatesErrorModel), 400)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
         public async Task<IActionResult> ExchangeRate(
             [FromRoute] string baseSymbol,
             [FromRoute] string targetSymbol,
-            [FromServices] IExchangeRateService exchangeRateService)
+            [FromServices] IExchangeRateService exchangeRateService,
+            [FromServices] IValidationService validationService)
         {
+            if (!validationService.DoesConfigurationPairExist(baseSymbol, targetSymbol))
+                return BadRequest($"Not configured symbols {baseSymbol} and {targetSymbol} ");
+
             return await HandleRequest(exchangeRateService.CurrentExchangeRate(baseSymbol, targetSymbol));
         }
 
@@ -35,12 +39,16 @@ namespace CurrencyExchange.Controllers
         /// <response code="400">Error model</response> 
         [HttpGet("{baseSymbol}/{targetSymbol}/average")]
         [ProducesResponseType(typeof(string), 200)]
-        [ProducesResponseType(typeof(ExchangeRatesErrorModel), 400)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
         public async Task<IActionResult> AverageExchangeRate(
             [FromRoute] string baseSymbol,
             [FromRoute] string targetSymbol,
-            [FromServices] IExchangeRateService exchangeRateService)
+            [FromServices] IExchangeRateService exchangeRateService,
+            [FromServices] IValidationService validationService)
         {
+            if (!validationService.DoesConfigurationPairExist(baseSymbol, targetSymbol))
+                return BadRequest($"Not configured symbols {baseSymbol} and {targetSymbol} ");
+
             return await HandleRequest(exchangeRateService.AverageExchangeRateFor7Days(baseSymbol, targetSymbol));
         }
 
@@ -52,12 +60,16 @@ namespace CurrencyExchange.Controllers
         /// <response code="400">Error model</response> 
         [HttpGet("{baseSymbol}/{targetSymbol}/minimum")]
         [ProducesResponseType(typeof(string), 200)]
-        [ProducesResponseType(typeof(ExchangeRatesErrorModel), 400)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
         public async Task<IActionResult> MinimumExchangeRate(
             [FromRoute] string baseSymbol,
             [FromRoute] string targetSymbol,
-            [FromServices] IExchangeRateService exchangeRateService)
+            [FromServices] IExchangeRateService exchangeRateService,
+            [FromServices] IValidationService validationService)
         {
+            if (!validationService.DoesConfigurationPairExist(baseSymbol, targetSymbol))
+                return BadRequest($"Not configured symbols {baseSymbol} and {targetSymbol} ");
+
             return await HandleRequest(exchangeRateService.MinimumExchangeRateDuring7Days(baseSymbol, targetSymbol));
         }
 
@@ -69,12 +81,16 @@ namespace CurrencyExchange.Controllers
         /// <response code="400">Error model</response> 
         [HttpGet("{baseSymbol}/{targetSymbol}/maximum")]
         [ProducesResponseType(typeof(string), 200)]
-        [ProducesResponseType(typeof(ExchangeRatesErrorModel), 400)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
         public async Task<IActionResult> MaximumExchangeRate(
             [FromRoute] string baseSymbol,
             [FromRoute] string targetSymbol,
-            [FromServices] IExchangeRateService exchangeRateService)
+            [FromServices] IExchangeRateService exchangeRateService,
+            [FromServices] IValidationService validationService)
         {
+            if (!validationService.DoesConfigurationPairExist(baseSymbol, targetSymbol))
+                return BadRequest($"Not configured symbols {baseSymbol} and {targetSymbol} ");
+
             return await HandleRequest(exchangeRateService.MaximumExchangeRateDuring7Days(baseSymbol, targetSymbol));
         }
 
@@ -86,11 +102,15 @@ namespace CurrencyExchange.Controllers
         /// <response code="400">Error model</response> 
         [HttpGet("{baseSymbol}")]
         [ProducesResponseType(typeof(string), 200)]
-        [ProducesResponseType(typeof(ExchangeRatesErrorModel), 400)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
         public async Task<IActionResult> GetAllRates(
             [FromRoute] string baseSymbol,
-            [FromServices] IExchangeRateService exchangeRateService)
+            [FromServices] IExchangeRateService exchangeRateService,
+            [FromServices] IValidationService validationService)
         {
+            if (!validationService.IsProperBaseSymbol(baseSymbol))
+                return BadRequest($"Incorrect Base Symbol: {baseSymbol}. Only EUR is supported");
+
             try
             {
                 var allRates = await exchangeRateService.GetAllRates(baseSymbol);
@@ -98,7 +118,7 @@ namespace CurrencyExchange.Controllers
             }
             catch(ExchangeRateException exception)
             {
-                return BadRequest(new ExchangeRatesErrorModel($"{exception.Message}. {baseSymbol} is not supported. Only EUR is allowed as base currency"));
+                return BadRequest(new ErrorModel($"{exception.Message}. {baseSymbol} is not supported. Only EUR is allowed as base currency"));
             }
         }
 
@@ -111,15 +131,15 @@ namespace CurrencyExchange.Controllers
             }
             catch (ExchangeRateException exchangeRateException)
             {
-                return BadRequest(new ExchangeRatesErrorModel(exchangeRateException.Message));
+                return BadRequest(new ErrorModel(exchangeRateException.Message));
             }
             catch (ConfigurationSetupException configurationSetupException)
             {
-                return BadRequest(new ExchangeRatesErrorModel(configurationSetupException.Message));
+                return BadRequest(new ErrorModel(configurationSetupException.Message));
             }
             catch (FixerException fixerException)
             {
-                return BadRequest(new ExchangeRatesErrorModel(fixerException.Message));
+                return BadRequest(new ErrorModel(fixerException.Message));
             }
             catch (Exception)
             {

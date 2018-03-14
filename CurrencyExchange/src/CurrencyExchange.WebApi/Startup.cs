@@ -35,8 +35,6 @@ namespace CurrencyExchange
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseDeveloperExceptionPage();
-
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

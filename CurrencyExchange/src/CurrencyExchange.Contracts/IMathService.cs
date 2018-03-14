@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using CurrencyExchange.Contracts.DTOs;
+using System.Collections.Generic;
 
 namespace CurrencyExchange.Contracts
 {

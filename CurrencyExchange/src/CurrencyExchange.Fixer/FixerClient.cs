@@ -12,6 +12,7 @@ namespace CurrencyExchange.Fixer
         const string URL_PLACEHOLDER_SYMBOLS = "http://data.fixer.io/api/latest?access_key={0}&base={1}&symbols={2}";
         readonly HttpClient Client;
         string AccessKey;
+        static string GetAllRatesResponse = "";
 
         public FixerClient(HttpClient client)
         {
@@ -40,6 +41,9 @@ namespace CurrencyExchange.Fixer
         /// <returns></returns>
         public async Task<string> GetExchangeRatesForSpecifiedDate(string baseSymbol, string targetSymbol, DateTime date)
         {
+            // Cannot use timeseries API to get data for the past 7 days at once 
+            // Therefore I have to ask for a specific day 7 times
+
             var dateString = date.ToString("yyyy-MM-dd");
             var uri = string.Format(URL_PLACEHOLDER_DATE, AccessKey, baseSymbol, targetSymbol, dateString);
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
@@ -53,11 +57,16 @@ namespace CurrencyExchange.Fixer
         /// <returns></returns>
         public async Task<string> GetAllRates(string baseSymbol)
         {
+            if (baseSymbol.ToLower() == "eur" && !string.IsNullOrWhiteSpace(GetAllRatesResponse))
+                return GetAllRatesResponse;
+
             var uri = string.Format(URL_PLACEHOLDER, AccessKey, baseSymbol);
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
             requestMessage.Content = new StringContent("", Encoding.UTF8, "application/json");
+            var response = await SendAsync(requestMessage);
 
-            return await SendAsync(requestMessage);
+            GetAllRatesResponse = response;
+            return GetAllRatesResponse;
         }
 
         async Task<string> SendAsync(HttpRequestMessage requestMessage)

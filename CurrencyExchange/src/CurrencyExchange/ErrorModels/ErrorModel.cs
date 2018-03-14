@@ -1,8 +1,8 @@
 ﻿namespace CurrencyExchange.ErrorModels
 {
-    public class ExchangeRatesErrorModel
+    public class ErrorModel
     {
-        public ExchangeRatesErrorModel(string message)
+        public ErrorModel(string message)
         {
             Message = message;
         }

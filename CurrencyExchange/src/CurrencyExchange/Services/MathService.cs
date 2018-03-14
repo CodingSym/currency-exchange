@@ -1,4 +1,5 @@
 ﻿using CurrencyExchange.Contracts;
+using CurrencyExchange.Contracts.DTOs;
 using System.Collections.Generic;
 using System.Linq;
 

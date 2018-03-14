@@ -1,4 +1,5 @@
 ﻿using CurrencyExchange.Contracts;
+using CurrencyExchange.Contracts.DTOs;
 using CurrencyExchange.Exceptions;
 using CurrencyExchange.Fixer;
 using CurrencyExchange.Helpers;

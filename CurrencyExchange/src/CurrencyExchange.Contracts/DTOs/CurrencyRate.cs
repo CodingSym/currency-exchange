@@ -1,4 +1,4 @@
-﻿namespace CurrencyExchange.Contracts
+﻿namespace CurrencyExchange.Contracts.DTOs
 {
     public sealed class CurrencyRate
     {

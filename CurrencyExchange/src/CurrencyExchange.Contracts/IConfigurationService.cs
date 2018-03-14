@@ -1,11 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using CurrencyExchange.Contracts.DTOs;
+using System.Collections.Generic;
 
 namespace CurrencyExchange.Contracts
 {
     public interface IConfigurationService
     {
-        Task AddCurrency(string symbol);
-        Task DeleteCurrency(string symbol);
-        Task ValidateCurrency(string symbol);
+        SymbolConfigurationDTO GetCurrency(SymbolConfigurationDTO model);
+        SymbolConfigurationDTO AddCurrency(SymbolConfigurationDTO model);
+        SymbolConfigurationDTO UpdateCurrency(SymbolConfigurationDTO model);
+        SymbolConfigurationDTO DeleteCurrency(SymbolConfigurationDTO model);
+        List<SymbolConfigurationDTO> GetAll();
     }
 }
